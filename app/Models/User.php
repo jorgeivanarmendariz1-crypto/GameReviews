@@ -49,4 +49,29 @@ class User extends Authenticatable
             'two_factor_confirmed_at' => 'datetime',
         ];
     }
+
+    public function gamesCreated()
+    {
+        return $this->hasMany(Game::class, 'created_by');
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function petitions()
+    {
+        return $this->hasMany(Petition::class);
+    }
+
+    public function roles()
+    {
+        return $this->belongsToMany(\App\Models\Role::class);
+    }
+
+    public function hasRole(string $role): bool
+    {
+        return $this->roles()->where('name', $role)->exists();
+    }
 }
