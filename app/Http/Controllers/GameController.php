@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+
 use App\Models\Game;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -11,6 +13,7 @@ use App\Http\Requests\StoreGameRequest;
 
 class GameController extends Controller
 {
+    use AuthorizesRequests;
     // Para ADMIN
     public function index()
     {
@@ -43,6 +46,7 @@ class GameController extends Controller
 
     public function store(StoreGameRequest $request)
     {
+        $this->authorize('create', \App\Models\Game::class);
         $validated = $request->validated();
 
         // Subir portada si existe

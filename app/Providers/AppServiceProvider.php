@@ -4,6 +4,12 @@ namespace App\Providers;
 
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
+use App\Models\Game;
+use App\Models\Review;
+use App\Policies\GamePolicy;
+use App\Policies\ReviewPolicy;
+use Illuminate\Support\Facades\Gate;
+
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -20,6 +26,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Vite::prefetch(concurrency: 3);
+        Gate::policy(Game::class, GamePolicy::class);
+        Gate::policy(Review::class, ReviewPolicy::class);
     }
 }

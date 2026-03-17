@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+
 use App\Http\Requests\StoreReviewRequest;
 use App\Http\Requests\UpdateReviewRequest;
 use App\Models\Review;
@@ -10,8 +12,10 @@ use Illuminate\Http\RedirectResponse;
 
 class ReviewController extends Controller
 {
+    use AuthorizesRequests;
     public function store(StoreReviewRequest $request, ReviewModerationService $moderation): RedirectResponse
     {
+        $this->authorize('create', \App\Models\Review::class);
         $data = $request->dto();
         //$data = $request->dto($gameId);
 
@@ -35,9 +39,7 @@ class ReviewController extends Controller
     public function update(UpdateReviewRequest $request, Review $review, ReviewModerationService $moderation): RedirectResponse
     {
         // Solo el dueño puede editar
-        if ($review->user_id !== auth()->id()) {
-            abort(403);
-        }
+        $this->authorize('update', $review);
 
         // máximo 2 modificaciones
         if ($review->edit_count >= 2) {
@@ -66,9 +68,7 @@ class ReviewController extends Controller
 
     public function destroy(Review $review): RedirectResponse
     {
-        if ($review->user_id !== auth()->id()) {
-            abort(403);
-        }
+        $this->authorize('update', $review);
 
         $review->delete();
 

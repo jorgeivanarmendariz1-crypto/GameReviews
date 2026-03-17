@@ -27,13 +27,20 @@ export default function Dashboard() {
                     Aquí podrás ver juegos y publicar reseñas.
                 </p>
 
-                {/* Acciones Usuario */}
+                {/* Acciones de usuario */}
                 <div className="mt-6 flex flex-wrap gap-3">
                     <Link
                         href="/games"
                         className="inline-flex items-center justify-center rounded-xl bg-indigo-600 px-5 py-2 font-semibold text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:bg-indigo-500 hover:shadow-[0_0_25px_rgba(99,102,241,0.6)]"
                     >
                         Ver juegos
+                    </Link>
+
+                    <Link
+                        href="/petitions/create"
+                        className="inline-flex items-center justify-center rounded-xl border border-white/10 bg-white/5 px-5 py-2 font-semibold text-white transition-all duration-300 hover:-translate-y-1 hover:bg-white/10"
+                    >
+                        Pedir juego
                     </Link>
                 </div>
             </div>
