@@ -43,6 +43,13 @@ export default function Dashboard() {
                     >
                         Ver peticiones
                     </Link>
+
+                    <Link
+                        href="/games"
+                        className="rounded-xl bg-white/10 px-4 py-2 font-semibold text-white hover:bg-white/20"
+                    >
+                        Ver juegos
+                    </Link>
                 </div>
             </div>
         </>

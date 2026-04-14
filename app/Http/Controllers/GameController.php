@@ -25,17 +25,10 @@ class GameController extends Controller
     // Para USER
     public function publicIndex()
     {
-        // return Inertia::render('Games/Index', [
-        //     'games' => Game::query()
-        //         ->where('is_open', true)
-        //         ->latest()
-        //         ->get(),
-        // ]);
-
         return \Inertia\Inertia::render('Games/Index', [
-            'games' => \App\Models\Game::where('is_open', true)
-                ->latest()
-                ->get(),
+            'games' => \App\Models\Game::where('is_open', true) // Filtramos solamente los juegos que esten "abiertos/activos"
+                ->latest() // Se ordena del mas reciente al mas antiguo
+                ->get(), // Ejecutamos la ruta y nos trae los resultados
         ]);
     }
 
