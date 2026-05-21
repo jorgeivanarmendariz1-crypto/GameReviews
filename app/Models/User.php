@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Fortify\TwoFactorAuthenticatable;
+use App\Models\Role;
 
 class User extends Authenticatable
 {
@@ -67,11 +68,17 @@ class User extends Authenticatable
 
     public function roles()
     {
-        return $this->belongsToMany(\App\Models\Role::class);
+        return $this->belongsToMany(
+            \App\Models\Role::class,
+            'role_user',
+            'user_id',
+            'role_id'
+        );
     }
 
     public function hasRole(string $role): bool
     {
         return $this->roles()->where('name', $role)->exists();
     }
+
 }

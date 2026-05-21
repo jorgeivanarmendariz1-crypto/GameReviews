@@ -39,7 +39,7 @@ class GameController extends Controller
 
     public function store(StoreGameRequest $request)
     {
-        $this->authorize('create', \App\Models\Game::class);
+        $this->authorize('create', Game::class);
         $validated = $request->validated();
 
         // Subir portada si existe
@@ -71,4 +71,20 @@ class GameController extends Controller
             ->with('success', 'Juego creado correctamente.');
     }
 
+    public function show(Game $game)
+    {
+        $game->load(['reviews.user']);
+        return Inertia::render('Games/Show', [
+            'game' => $game,
+            'reviews' => $game->reviews()->with('user')->latest()->get(),
+        ]);
+    }
+    //     public function show(Game $game)
+// {
+//     $game->load(['reviews.user']);
+
+    //     return Inertia::render('Games/Show', [
+//         'game' => $game,
+//     ]);
+// }
 }

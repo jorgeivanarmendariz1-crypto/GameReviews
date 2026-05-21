@@ -44,7 +44,7 @@ class RegisteredUserController extends Controller
 
         $roleUser = \App\Models\Role::where('name', 'user')->first();
         if ($roleUser) {
-            $user->roles()->syncWithoutDetaching([$roleUser->id]);
+            $user->roles()->attach([$roleUser->id]);
         }
 
         event(new Registered($user));

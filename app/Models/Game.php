@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Game extends Model
 {
     //
-    protected $fillable = ['title', 'description', 'is_open', 'cover_path', 'is_published', 'created_by'];
+    protected $fillable = ['image', 'title', 'description', 'is_open', 'cover_path', 'is_published', 'created_by'];
 
     public function creator()
     {

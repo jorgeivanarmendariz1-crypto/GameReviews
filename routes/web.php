@@ -37,6 +37,8 @@ Route::middleware('auth')->group(function () {
 // USER — Rutas para usuarios autenticados
 // -------------------------------------------------------
 Route::middleware(['auth'])->group(function () {
+    // Conectar las reseñas a la interfaz
+    Route::get('/games/{game}', [GameController::class, 'show'])->name('games.show');
     // Juegos públicos (solo los abiertos)
     Route::get('/games', [GameController::class, 'publicIndex'])->name('games.index');
 
@@ -47,6 +49,8 @@ Route::middleware(['auth'])->group(function () {
     // Reseñas
     Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
     Route::patch('/reviews/{review}', [ReviewController::class, 'update'])->name('reviews.update');
+    Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
+    Route::put('/reviews/{review}', [ReviewController::class, 'update'])->name('reviews.update');
     Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
 });
 

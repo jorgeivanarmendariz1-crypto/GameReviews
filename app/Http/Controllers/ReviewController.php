@@ -15,9 +15,9 @@ class ReviewController extends Controller
     use AuthorizesRequests;
     public function store(StoreReviewRequest $request, ReviewModerationService $moderation): RedirectResponse
     {
-        $this->authorize('create', \App\Models\Review::class);
+        $this->authorize('create', Review::class);
+
         $data = $request->dto();
-        //$data = $request->dto($gameId);
 
         if (!$moderation->isAllowed($data->content)) {
             return back()->withErrors([
@@ -25,13 +25,16 @@ class ReviewController extends Controller
             ])->withInput();
         }
 
-        Review::create([
-            'user_id' => auth()->id(),
-            'game_id' => $data->game_id,
-            'rating' => $data->rating,
-            'content' => $data->content,
-            'edit_count' => 0,
-        ]);
+        try {
+            Review::create([
+                'user_id' => $request->user()->id,
+                'game_id' => $data->game_id,
+                'rating' => $data->rating,
+                'content' => $data->content,
+            ]);
+        } catch (\Illuminate\Database\QueryException $e) {
+            return back()->withErrors(['general' => 'No se pudo guardar la reseña. Intenta de nuevo.'])->withInput();
+        }
 
         return redirect()->route('dashboard')->with('success', 'Reseña publicada con éxito.');
     }
@@ -44,7 +47,7 @@ class ReviewController extends Controller
         // máximo 2 modificaciones
         if ($review->edit_count >= 2) {
             return back()->withErrors([
-                'content' => 'Ya alcanzaste el máximo de 2 modificaciones para esta reseña.',
+                'content' => 'Alcanzaste el máximo de 2 modificaciones para esta reseña.',
             ]);
         }
 

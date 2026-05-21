@@ -7,6 +7,7 @@ use Spatie\LaravelData\Data;
 class GameData extends Data
 {
     public function __construct(
+        public ?string $image,
         public string $title,
         public ?string $description,
         public bool $is_published,
