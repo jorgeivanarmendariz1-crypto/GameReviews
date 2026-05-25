@@ -5,7 +5,7 @@ export default function Create() {
         title: '',
         description: '',
         cover: null,
-        is_published: true,
+        is_open: true,
     });
 
     const submit = (e) => {
@@ -17,7 +17,7 @@ export default function Create() {
         <>
             <Head title="Crear juego" />
             <div className="min-h-screen p-10 text-white">
-                <h1 className="text-3xl font-bold mb-6">Crear juego</h1>
+                <h1 className="mb-6 text-3xl font-bold">Crear juego</h1>
 
                 <form onSubmit={submit} className="max-w-xl space-y-4">
                     <div>
@@ -27,7 +27,11 @@ export default function Create() {
                             value={data.title}
                             onChange={(e) => setData('title', e.target.value)}
                         />
-                        {errors.title && <div className="text-red-400 text-sm mt-1">{errors.title}</div>}
+                        {errors.title && (
+                            <div className="mt-1 text-sm text-red-400">
+                                {errors.title}
+                            </div>
+                        )}
                     </div>
 
                     <div>
@@ -36,7 +40,9 @@ export default function Create() {
                             className="mt-2 w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2 outline-none"
                             rows={4}
                             value={data.description}
-                            onChange={(e) => setData('description', e.target.value)}
+                            onChange={(e) =>
+                                setData('description', e.target.value)
+                            }
                         />
                     </div>
 
@@ -45,16 +51,24 @@ export default function Create() {
                         <input
                             type="file"
                             className="mt-2 block w-full text-sm"
-                            onChange={(e) => setData('cover', e.target.files[0])}
+                            onChange={(e) =>
+                                setData('cover', e.target.files[0])
+                            }
                         />
-                        {errors.cover && <div className="text-red-400 text-sm mt-1">{errors.cover}</div>}
+                        {errors.cover && (
+                            <div className="mt-1 text-sm text-red-400">
+                                {errors.cover}
+                            </div>
+                        )}
                     </div>
 
                     <div className="flex items-center gap-3">
                         <input
                             type="checkbox"
-                            checked={data.is_published}
-                            onChange={(e) => setData('is_published', e.target.checked)}
+                            checked={data.is_open}
+                            onChange={(e) =>
+                                setData('is_open', e.target.checked)
+                            }
                         />
                         <span>Abrir para reseñas</span>
                     </div>

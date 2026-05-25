@@ -17,9 +17,8 @@ class StoreGameRequest extends FormRequest
         return [
             'title' => ['required', 'string', 'max:255'],
             'description' => ['nullable', 'string', 'max:5000'],
-            'is_published' => ['required', 'boolean'],
-            'cover' => ['nullable', 'image', 'max:2048'], // 2MB
-            'is_open' => ['nullable', 'boolean']
+            'is_open' => ['nullable', 'boolean'],
+            'cover' => ['nullable', 'image', 'max:2048'],
         ];
     }
 
@@ -29,10 +28,10 @@ class StoreGameRequest extends FormRequest
 
         return GameData::from([
             'title' => $validated['title'],
-            'description' => $validated['description'],
-            'is_published' => (bool) $validated['is_published'],
-            'cover' => $this->file('cover'),
-            'is_open' => (bool) ($validated['is_open'] ?? false),
+            'description' => $validated['description'] ?? null,
+            'cover_path' => null, // se resuelve en el controller tras subir el archivo
+            'is_open' => (bool) ($validated['is_open'] ?? true),
+            'created_by' => $this->user()->id,
         ]);
     }
 }

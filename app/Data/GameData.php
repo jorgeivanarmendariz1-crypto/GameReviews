@@ -10,7 +10,6 @@ class GameData extends Data
         public ?string $image,
         public string $title,
         public ?string $description,
-        public bool $is_published,
         public ?string $cover_path,
         public int $created_by,
         public bool $is_open = true

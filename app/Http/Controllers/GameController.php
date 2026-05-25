@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Data\GameData;
 use App\Http\Requests\StoreGameRequest;
-//use App\Models\Game;
 
 class GameController extends Controller
 {
@@ -52,7 +51,7 @@ class GameController extends Controller
         $dto = GameData::from([
             'title' => $validated['title'],
             'description' => $validated['description'] ?? null,
-            'is_published' => (bool) $validated['is_published'],
+            'is_open' => (bool) ($validated['is_open'] ?? true),
             'cover_path' => $coverPath,
             'created_by' => $request->user()->id,
         ]);
@@ -60,10 +59,9 @@ class GameController extends Controller
         Game::create([
             'title' => $dto->title,
             'description' => $dto->description,
-            'is_published' => $dto->is_published,
+            'is_open' => $dto->is_open,
             'cover_path' => $dto->cover_path,
             'created_by' => $dto->created_by,
-            'is_open' => $dto->is_open
         ]);
 
         return redirect()
@@ -79,12 +77,4 @@ class GameController extends Controller
             'reviews' => $game->reviews()->with('user')->latest()->get(),
         ]);
     }
-    //     public function show(Game $game)
-// {
-//     $game->load(['reviews.user']);
-
-    //     return Inertia::render('Games/Show', [
-//         'game' => $game,
-//     ]);
-// }
 }

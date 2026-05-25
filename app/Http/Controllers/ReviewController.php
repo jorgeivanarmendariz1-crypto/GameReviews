@@ -71,7 +71,7 @@ class ReviewController extends Controller
 
     public function destroy(Review $review): RedirectResponse
     {
-        $this->authorize('update', $review);
+        $this->authorize('delete', $review);
 
         $review->delete();
 

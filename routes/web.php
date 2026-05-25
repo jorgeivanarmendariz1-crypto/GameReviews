@@ -48,8 +48,6 @@ Route::middleware(['auth'])->group(function () {
 
     // Reseñas
     Route::post('/reviews', [ReviewController::class, 'store'])->name('reviews.store');
-    Route::patch('/reviews/{review}', [ReviewController::class, 'update'])->name('reviews.update');
-    Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
     Route::put('/reviews/{review}', [ReviewController::class, 'update'])->name('reviews.update');
     Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
 });
