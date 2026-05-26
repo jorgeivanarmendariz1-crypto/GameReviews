@@ -1,4 +1,5 @@
 import { Head, router, useForm } from '@inertiajs/react';
+import AppLayout from '@/layouts/AppLayout';
 
 export default function Create() {
     const { data, setData, post, processing, errors } = useForm({
@@ -14,7 +15,7 @@ export default function Create() {
     };
 
     return (
-        <>
+        <AppLayout>
             <Head title="Crear juego" />
             <div className="min-h-screen p-10 text-white">
                 <h1 className="mb-6 text-3xl font-bold">Crear juego</h1>
@@ -81,6 +82,6 @@ export default function Create() {
                     </button>
                 </form>
             </div>
-        </>
+        </AppLayout>
     );
 }

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { router } from '@inertiajs/react';
+import AppLayout from '@/layouts/AppLayout';
 
 export default function Show({ game, reviews }) {
     const { auth, errors } = usePage().props;
@@ -30,30 +31,19 @@ export default function Show({ game, reviews }) {
     };
 
     return (
-        <>
+        <AppLayout>
             <Head title={game.title} />
-            {/* <p className="text-red-400">{game.cover}</p> */}
 
             {game.cover_path && (
                 <img
                     src={`/storage/${game.cover_path}`}
                     alt={game.title}
-                    className="mt-6 h-80 w-full rounded-2xl object-cover"
+                    className="h-80 w-full object-cover"
                 />
             )}
 
             <div className="min-h-screen px-6 py-10 text-white">
                 <div className="mx-auto max-w-4xl">
-                    {/* HEADER */}
-                    <div className="mb-6 flex items-center justify-between">
-                        <Link
-                            href="/games"
-                            className="text-sm text-slate-300 hover:text-white"
-                        >
-                            ← Volver
-                        </Link>
-                    </div>
-
                     {/* GAME INFO */}
                     <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
                         <h1 className="text-3xl font-bold">{game.title}</h1>
@@ -207,6 +197,6 @@ export default function Show({ game, reviews }) {
                     </div>
                 </div>
             </div>
-        </>
+        </AppLayout>
     );
 }

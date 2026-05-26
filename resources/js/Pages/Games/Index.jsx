@@ -1,31 +1,21 @@
 import { Head, Link } from '@inertiajs/react';
+import AppLayout from '@/layouts/AppLayout';
 
 export default function GamesIndex({ games }) {
     return (
-        <>
+        <AppLayout>
             <Head title="Juegos" />
 
             <div className="min-h-screen px-6 py-10 text-white">
                 <div className="mx-auto max-w-7xl">
                     {/* HEADER */}
-                    <div className="mb-10 flex items-center justify-between">
-                        <div>
-                            <h1 className="text-5xl font-extrabold tracking-tight">
-                                Biblioteca de Juegos
-                            </h1>
-
-                            <p className="mt-3 text-slate-300">
-                                Explora juegos, mira reseñas y comparte tu
-                                opinión.
-                            </p>
-                        </div>
-
-                        <Link
-                            href="/dashboard"
-                            className="rounded-2xl border border-white/10 bg-white/5 px-5 py-3 text-sm font-medium text-slate-200 transition hover:bg-white/10"
-                        >
-                            ← Dashboard
-                        </Link>
+                    <div className="mb-10">
+                        <h1 className="text-5xl font-extrabold tracking-tight">
+                            Biblioteca de Juegos
+                        </h1>
+                        <p className="mt-3 text-slate-300">
+                            Explora juegos, mira reseñas y comparte tu opinión.
+                        </p>
                     </div>
 
                     {/* EMPTY */}
@@ -85,6 +75,6 @@ export default function GamesIndex({ games }) {
                     )}
                 </div>
             </div>
-        </>
+        </AppLayout>
     );
 }

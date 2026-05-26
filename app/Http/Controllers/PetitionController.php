@@ -39,7 +39,7 @@ class PetitionController extends Controller
     public function adminIndex()
     {
         return Inertia::render('Admin/Petitions/Index', [
-            'petitions' => Petition::latest()->get(),
+            'petitions' => Petition::with('user')->latest()->get(),
         ]);
     }
 
@@ -65,5 +65,3 @@ class PetitionController extends Controller
         return back()->with('success', 'Petición rechazada.');
     }
 }
-
-

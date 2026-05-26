@@ -1,4 +1,5 @@
 import { Head, useForm } from '@inertiajs/react';
+import AppLayout from '@/layouts/AppLayout';
 
 export default function Create() {
     const { data, setData, post, processing, errors } = useForm({
@@ -12,10 +13,10 @@ export default function Create() {
     };
 
     return (
-        <>
+        <AppLayout>
             <Head title="Pedir juego" />
             <div className="min-h-screen p-10 text-white">
-                <h1 className="text-3xl font-bold mb-6">Pedir nuevo juego</h1>
+                <h1 className="mb-6 text-3xl font-bold">Pedir nuevo juego</h1>
 
                 <form onSubmit={submit} className="max-w-xl space-y-4">
                     <div>
@@ -25,7 +26,11 @@ export default function Create() {
                             value={data.title}
                             onChange={(e) => setData('title', e.target.value)}
                         />
-                        {errors.title && <div className="text-red-400 text-sm mt-1">{errors.title}</div>}
+                        {errors.title && (
+                            <div className="mt-1 text-sm text-red-400">
+                                {errors.title}
+                            </div>
+                        )}
                     </div>
 
                     <div>
@@ -46,6 +51,6 @@ export default function Create() {
                     </button>
                 </form>
             </div>
-        </>
+        </AppLayout>
     );
 }
