@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { router } from '@inertiajs/react';
+import { Star } from 'lucide-react';
 import AppLayout from '@/layouts/AppLayout';
 
 export default function Show({ game, reviews }) {
@@ -147,8 +148,8 @@ export default function Show({ game, reviews }) {
                                     <span className="text-sm text-slate-300">
                                         {review.user?.email}
                                     </span>
-                                    <span className="text-yellow-400">
-                                        ⭐ {review.rating}
+                                    <span className="inline-flex items-center gap-1 text-yellow-400">
+                                        <Star size={14} /> {review.rating}
                                     </span>
                                 </div>
 

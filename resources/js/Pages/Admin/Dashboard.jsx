@@ -1,16 +1,15 @@
 import { Head, Link, usePage } from '@inertiajs/react';
+import {
+    Gamepad2,
+    CheckCircle,
+    ClipboardList,
+    PenLine,
+    Plus,
+    List,
+    Library,
+} from 'lucide-react';
 import AppLayout from '@/layouts/AppLayout';
 
-/**
- * Admin/Dashboard
- *
- * Recibe del DashboardController:
- *   - totalGames       → total de juegos registrados
- *   - openGames        → juegos con is_open = true
- *   - pendingPetitions → peticiones en estado 'pending'
- *   - totalReviews     → total de reseñas en la plataforma
- *   - recentPetitions  → últimas 5 peticiones para vista rápida
- */
 export default function Dashboard({
     totalGames = 0,
     openGames = 0,
@@ -40,25 +39,25 @@ export default function Dashboard({
                         label="Juegos totales"
                         value={totalGames}
                         color="indigo"
-                        icon="🎮"
+                        icon={Gamepad2}
                     />
                     <StatCard
                         label="Juegos abiertos"
                         value={openGames}
                         color="green"
-                        icon="✅"
+                        icon={CheckCircle}
                     />
                     <StatCard
                         label="Peticiones pendientes"
                         value={pendingPetitions}
                         color="yellow"
-                        icon="📋"
+                        icon={ClipboardList}
                     />
                     <StatCard
                         label="Reseñas totales"
                         value={totalReviews}
                         color="purple"
-                        icon="✍️"
+                        icon={PenLine}
                     />
                 </div>
 
@@ -68,19 +67,19 @@ export default function Dashboard({
                         href="/admin/games/create"
                         className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 font-semibold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:bg-indigo-500 hover:shadow-[0_0_20px_rgba(99,102,241,0.5)]"
                     >
-                        🎮 Crear juego
+                        <Plus size={16} /> Crear juego
                     </Link>
                     <Link
                         href="/admin/petitions"
                         className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-2.5 font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-white/10"
                     >
-                        📋 Ver todas las peticiones
+                        <List size={16} /> Ver todas las peticiones
                     </Link>
                     <Link
                         href="/games"
                         className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-2.5 font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-white/10"
                     >
-                        🗂️ Ver biblioteca
+                        <Library size={16} /> Ver biblioteca
                     </Link>
                 </div>
 
@@ -140,10 +139,10 @@ const colorMap = {
     purple: 'border-purple-500/30 bg-purple-500/10 text-purple-300',
 };
 
-function StatCard({ label, value, color, icon }) {
+function StatCard({ label, value, color, icon: Icon }) {
     return (
         <div className={`rounded-2xl border p-5 ${colorMap[color]}`}>
-            <p className="mb-1 text-2xl">{icon}</p>
+            <Icon size={20} className="mb-1 opacity-80" />
             <p className="text-3xl font-extrabold">{value}</p>
             <p className="mt-1 text-xs opacity-80">{label}</p>
         </div>

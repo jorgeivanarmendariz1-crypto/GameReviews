@@ -1,5 +1,6 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
+import { Gamepad2, ClipboardList, Star, Pencil, Trash2 } from 'lucide-react';
 import AppLayout from '@/layouts/AppLayout';
 
 /**
@@ -76,13 +77,13 @@ export default function Dashboard({ reviews = [] }) {
                         href="/games"
                         className="inline-flex items-center gap-2 rounded-xl bg-indigo-600 px-5 py-2.5 font-semibold text-white shadow-lg transition-all hover:-translate-y-0.5 hover:bg-indigo-500 hover:shadow-[0_0_20px_rgba(99,102,241,0.5)]"
                     >
-                        🎮 Explorar juegos
+                        <Gamepad2 size={16} /> Explorar juegos
                     </Link>
                     <Link
                         href="/petitions/create"
                         className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/5 px-5 py-2.5 font-semibold text-white transition-all hover:-translate-y-0.5 hover:bg-white/10"
                     >
-                        📋 Pedir un juego
+                        <ClipboardList size={16} /> Pedir un juego
                     </Link>
                 </div>
 
@@ -97,7 +98,10 @@ export default function Dashboard({ reviews = [] }) {
 
                     {reviews.length === 0 ? (
                         <div className="rounded-2xl border border-white/10 bg-white/5 p-10 text-center text-slate-400">
-                            <p className="mb-3 text-4xl">🎮</p>
+                            <Gamepad2
+                                size={40}
+                                className="mx-auto mb-3 opacity-40"
+                            />
                             <p>Aún no has publicado ninguna reseña.</p>
                             <Link
                                 href="/games"
@@ -165,25 +169,25 @@ function ReviewCard({ review, onDelete, deleting }) {
 
                 {/* Rating + acciones */}
                 <div className="flex shrink-0 flex-col items-end gap-3">
-                    <span className="rounded-full border border-yellow-500/30 bg-yellow-500/15 px-3 py-1 text-sm font-bold text-yellow-300">
-                        ⭐ {review.rating}/10
+                    <span className="inline-flex items-center gap-1 rounded-full border border-yellow-500/30 bg-yellow-500/15 px-3 py-1 text-sm font-bold text-yellow-300">
+                        <Star size={13} /> {review.rating}/10
                     </span>
 
                     <div className="flex gap-2">
                         {!editLimitReached && (
                             <Link
                                 href={`/games/${review.game_id}`}
-                                className="rounded-lg border border-indigo-500/30 bg-indigo-500/10 px-3 py-1 text-xs font-medium text-indigo-300 transition hover:bg-indigo-500/20"
+                                className="inline-flex items-center gap-1 rounded-lg border border-indigo-500/30 bg-indigo-500/10 px-3 py-1 text-xs font-medium text-indigo-300 transition hover:bg-indigo-500/20"
                             >
-                                Editar
+                                <Pencil size={12} /> Editar
                             </Link>
                         )}
                         <button
                             disabled={deleting}
                             onClick={() => onDelete(review.id)}
-                            className="rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-1 text-xs font-medium text-red-300 transition hover:bg-red-500/20 disabled:opacity-50"
+                            className="inline-flex items-center gap-1 rounded-lg border border-red-500/30 bg-red-500/10 px-3 py-1 text-xs font-medium text-red-300 transition hover:bg-red-500/20 disabled:opacity-50"
                         >
-                            {deleting ? '…' : 'Eliminar'}
+                            <Trash2 size={12} /> {deleting ? '…' : 'Eliminar'}
                         </button>
                     </div>
                 </div>

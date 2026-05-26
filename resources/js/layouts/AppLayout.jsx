@@ -1,5 +1,6 @@
 import { Link, router, usePage } from '@inertiajs/react';
 import { useState } from 'react';
+import { Menu, X } from 'lucide-react';
 
 /**
  * AppLayout — Navbar global compartida por todas las páginas autenticadas.
@@ -80,7 +81,7 @@ export default function AppLayout({ children }) {
                         className="text-slate-300 sm:hidden"
                         onClick={() => setMenuOpen((v) => !v)}
                     >
-                        {menuOpen ? '✕' : '☰'}
+                        {menuOpen ? <X size={20} /> : <Menu size={20} />}
                     </button>
                 </div>
 
