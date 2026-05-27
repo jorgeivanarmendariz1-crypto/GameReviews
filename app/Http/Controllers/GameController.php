@@ -21,14 +21,43 @@ class GameController extends Controller
         ]);
     }
 
-    // Para USER
-    public function publicIndex()
+    // Para USER (y admin también visita esta vista)
+    public function publicIndex(Request $request)
     {
-        return \Inertia\Inertia::render('Games/Index', [
-            'games' => \App\Models\Game::where('is_open', true) // Filtramos solamente los juegos que esten "abiertos/activos"
-                ->latest() // Se ordena del mas reciente al mas antiguo
-                ->get(), // Ejecutamos la ruta y nos trae los resultados
+        $query = Game::withAvg('reviews', 'rating')
+            ->withCount('reviews');
+
+        // Búsqueda por título o descripción
+        if ($search = $request->input('search')) {
+            $query->where(function ($q) use ($search) {
+                $q->where('title', 'like', "%{$search}%")
+                    ->orWhere('description', 'like', "%{$search}%");
+            });
+        }
+
+        // Filtro por estado: 'open' | 'closed' | '' (todos)
+        $status = $request->input('status', '');
+        if ($status === 'open') {
+            $query->where('is_open', true);
+        } elseif ($status === 'closed') {
+            $query->where('is_open', false);
+        }
+
+        $games = $query->latest()->paginate(12)->withQueryString();
+
+        return Inertia::render('Games/Index', [
+            'games' => $games,
+            'filters' => $request->only(['search', 'status']),
         ]);
+    }
+
+    // Toggle is_open (solo admin, llamado desde la biblioteca)
+    public function toggleOpen(Game $game)
+    {
+        $this->authorize('create', Game::class); // reutiliza la policy de admin
+        $game->update(['is_open' => !$game->is_open]);
+
+        return back()->with('success', 'Estado del juego actualizado.');
     }
 
     public function create()

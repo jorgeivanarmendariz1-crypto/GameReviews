@@ -60,6 +60,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/games', [GameController::class, 'index'])->name('games.index');
     Route::get('/games/create', [GameController::class, 'create'])->name('games.create');
     Route::post('/games', [GameController::class, 'store'])->name('games.store');
+    Route::patch('/games/{game}/toggle-open', [GameController::class, 'toggleOpen'])->name('games.toggleOpen');
 
     // Peticiones
     Route::get('/petitions', [PetitionController::class, 'adminIndex'])->name('petitions.index');
