@@ -1,12 +1,15 @@
 import { useState } from 'react';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { router } from '@inertiajs/react';
-import { Star } from 'lucide-react';
+import { Star, Pencil, Trash2 } from 'lucide-react';
 import AppLayout from '@/layouts/AppLayout';
 
 export default function Show({ game, reviews }) {
     const { auth, errors } = usePage().props;
     const [editingId, setEditingId] = useState(null);
+
+    // Modal: guarda el id de la reseña a eliminar, o null si está cerrado
+    const [confirmReviewId, setConfirmReviewId] = useState(null);
 
     const { data, setData, post, processing, reset } = useForm({
         game_id: game.id,
@@ -16,7 +19,6 @@ export default function Show({ game, reviews }) {
 
     const submit = (e) => {
         e.preventDefault();
-
         if (editingId) {
             router.put(`/reviews/${editingId}`, data, {
                 onSuccess: () => {
@@ -25,15 +27,32 @@ export default function Show({ game, reviews }) {
                 },
             });
         } else {
-            post('/reviews', {
-                onSuccess: () => reset(),
-            });
+            post('/reviews', { onSuccess: () => reset() });
         }
+    };
+
+    const handleDeleteConfirmed = () => {
+        if (!confirmReviewId) return;
+        router.delete(`/reviews/${confirmReviewId}`, {
+            onFinish: () => setConfirmReviewId(null),
+        });
     };
 
     return (
         <AppLayout>
             <Head title={game.title} />
+
+            {/* Modal confirmación eliminar reseña */}
+            {confirmReviewId && (
+                <ConfirmModal
+                    title="Eliminar reseña"
+                    message="¿Estás seguro de que quieres eliminar esta reseña? Esta acción no se puede deshacer."
+                    confirmLabel="Eliminar"
+                    onConfirm={handleDeleteConfirmed}
+                    onCancel={() => setConfirmReviewId(null)}
+                    danger
+                />
+            )}
 
             {game.cover_path && (
                 <img
@@ -172,24 +191,18 @@ export default function Show({ game, reviews }) {
                                                     review.rating,
                                                 );
                                             }}
-                                            className="text-sm text-indigo-400 hover:text-indigo-300"
+                                            className="inline-flex items-center gap-1 text-sm text-indigo-400 hover:text-indigo-300"
                                         >
-                                            Editar
+                                            <Pencil size={13} /> Editar
                                         </button>
 
                                         <button
-                                            onClick={() => {
-                                                if (
-                                                    confirm('¿Eliminar reseña?')
-                                                ) {
-                                                    router.delete(
-                                                        `/reviews/${review.id}`,
-                                                    );
-                                                }
-                                            }}
-                                            className="text-sm text-red-400 hover:text-red-300"
+                                            onClick={() =>
+                                                setConfirmReviewId(review.id)
+                                            }
+                                            className="inline-flex items-center gap-1 text-sm text-red-400 hover:text-red-300"
                                         >
-                                            Eliminar
+                                            <Trash2 size={13} /> Eliminar
                                         </button>
                                     </div>
                                 )}
@@ -199,5 +212,49 @@ export default function Show({ game, reviews }) {
                 </div>
             </div>
         </AppLayout>
+    );
+}
+
+/* ── ConfirmModal ────────────────────────────────────── */
+
+function ConfirmModal({
+    title,
+    message,
+    confirmLabel = 'Confirmar',
+    onConfirm,
+    onCancel,
+    danger = false,
+}) {
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div
+                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                onClick={onCancel}
+            />
+            <div className="relative w-full max-w-md rounded-2xl border border-white/10 bg-[#0f1117] p-6 shadow-2xl">
+                <h3 className="text-lg font-bold text-white">{title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-300">
+                    {message}
+                </p>
+                <div className="mt-6 flex justify-end gap-3">
+                    <button
+                        onClick={onCancel}
+                        className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-slate-200 transition hover:bg-white/10"
+                    >
+                        Cancelar
+                    </button>
+                    <button
+                        onClick={onConfirm}
+                        className={`rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${
+                            danger
+                                ? 'bg-red-600 hover:bg-red-500'
+                                : 'bg-indigo-600 hover:bg-indigo-500'
+                        }`}
+                    >
+                        {confirmLabel}
+                    </button>
+                </div>
+            </div>
+        </div>
     );
 }

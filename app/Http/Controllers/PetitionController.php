@@ -51,7 +51,10 @@ class PetitionController extends Controller
             'reviewed_at' => Carbon::now(),
         ]);
 
-        return back()->with('success', 'Petición aprobada.');
+        return redirect()
+            ->route('admin.games.create')
+            ->with('prefill_title', $petition->title)
+            ->setStatusCode(303);
     }
 
     public function reject(Petition $petition, Request $request)

@@ -30,8 +30,8 @@ class GameController extends Controller
         // Búsqueda por título o descripción
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
-                $q->where('title', 'like', "%{$search}%")
-                    ->orWhere('description', 'like', "%{$search}%");
+                $q->where('title', 'ilike', "%{$search}%")
+                    ->orWhere('description', 'ilike', "%{$search}%");
             });
         }
 
@@ -51,18 +51,29 @@ class GameController extends Controller
         ]);
     }
 
-    // Toggle is_open (solo admin, llamado desde la biblioteca)
+    // Toggle is_open (solo admin — el middleware de la ruta ya garantiza el rol)
     public function toggleOpen(Game $game)
     {
-        $this->authorize('create', Game::class); // reutiliza la policy de admin
         $game->update(['is_open' => !$game->is_open]);
-
         return back()->with('success', 'Estado del juego actualizado.');
+    }
+
+    // Eliminar juego (solo admin)
+    public function destroy(Game $game)
+    {
+        $this->authorize('delete', $game);
+        $game->delete();
+        return redirect()->route('games.index')->with('success', 'Juego eliminado.');
     }
 
     public function create()
     {
-        return Inertia::render('Admin/Games/Create');
+        return Inertia::render('Admin/Games/Create', [
+            'openGames' => Game::where('is_open', true)
+                ->orderBy('title')
+                ->get(['id', 'title']),
+            'prefillTitle' => session('prefill_title', ''),
+        ]);
     }
 
     public function store(StoreGameRequest $request)

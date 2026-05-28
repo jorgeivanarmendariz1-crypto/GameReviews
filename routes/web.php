@@ -61,6 +61,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/games/create', [GameController::class, 'create'])->name('games.create');
     Route::post('/games', [GameController::class, 'store'])->name('games.store');
     Route::patch('/games/{game}/toggle-open', [GameController::class, 'toggleOpen'])->name('games.toggleOpen');
+    Route::delete('/games/{game}', [GameController::class, 'destroy'])->name('games.destroy');
 
     // Peticiones
     Route::get('/petitions', [PetitionController::class, 'adminIndex'])->name('petitions.index');

@@ -15,19 +15,33 @@ import AppLayout from '@/layouts/AppLayout';
 export default function Dashboard({ reviews = [] }) {
     const { auth } = usePage().props;
     const [deletingId, setDeletingId] = useState(null);
+    const [confirmId, setConfirmId] = useState(null);
 
     const handleDelete = (id) => {
-        if (!confirm('¿Eliminar esta reseña?')) return;
         setDeletingId(id);
         router.delete(`/reviews/${id}`, {
             preserveScroll: true,
-            onFinish: () => setDeletingId(null),
+            onFinish: () => {
+                setDeletingId(null);
+                setConfirmId(null);
+            },
         });
     };
 
     return (
         <AppLayout>
             <Head title="Mi panel" />
+
+            {confirmId && (
+                <ConfirmModal
+                    title="Eliminar reseña"
+                    message="¿Estás seguro de que quieres eliminar esta reseña? Esta acción no se puede deshacer."
+                    confirmLabel="Eliminar"
+                    onConfirm={() => handleDelete(confirmId)}
+                    onCancel={() => setConfirmId(null)}
+                    danger
+                />
+            )}
 
             <div className="mx-auto max-w-5xl px-6 py-10">
                 {/* Bienvenida */}
@@ -116,7 +130,7 @@ export default function Dashboard({ reviews = [] }) {
                                 <ReviewCard
                                     key={review.id}
                                     review={review}
-                                    onDelete={handleDelete}
+                                    onDelete={(id) => setConfirmId(id)}
                                     deleting={deletingId === review.id}
                                 />
                             ))}
@@ -209,6 +223,50 @@ function StatCard({ label, value, color }) {
         <div className={`rounded-2xl border p-5 ${colorMap[color]}`}>
             <p className="text-3xl font-extrabold">{value}</p>
             <p className="mt-1 text-xs opacity-80">{label}</p>
+        </div>
+    );
+}
+
+/* ── ConfirmModal ────────────────────────────────────── */
+
+function ConfirmModal({
+    title,
+    message,
+    confirmLabel = 'Confirmar',
+    onConfirm,
+    onCancel,
+    danger = false,
+}) {
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <div
+                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                onClick={onCancel}
+            />
+            <div className="relative w-full max-w-md rounded-2xl border border-white/10 bg-[#0f1117] p-6 shadow-2xl">
+                <h3 className="text-lg font-bold text-white">{title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-300">
+                    {message}
+                </p>
+                <div className="mt-6 flex justify-end gap-3">
+                    <button
+                        onClick={onCancel}
+                        className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-slate-200 transition hover:bg-white/10"
+                    >
+                        Cancelar
+                    </button>
+                    <button
+                        onClick={onConfirm}
+                        className={`rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${
+                            danger
+                                ? 'bg-red-600 hover:bg-red-500'
+                                : 'bg-indigo-600 hover:bg-indigo-500'
+                        }`}
+                    >
+                        {confirmLabel}
+                    </button>
+                </div>
+            </div>
         </div>
     );
 }

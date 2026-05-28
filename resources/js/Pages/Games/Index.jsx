@@ -1,5 +1,5 @@
 import { Head, Link, router, usePage } from '@inertiajs/react';
-import { useState, useCallback } from 'react';
+import { useState, useRef } from 'react';
 import {
     Search,
     X,
@@ -8,18 +8,20 @@ import {
     ChevronRight,
     Lock,
     Unlock,
+    Trash2,
 } from 'lucide-react';
 import AppLayout from '@/layouts/AppLayout';
 
 /**
  * Games/Index
  *
- * Features añadidas:
- *  1. Búsqueda por título/descripción (debounced, se refleja en la URL)
+ * Features:
+ *  1. Búsqueda debounced (350ms) por título/descripción
  *  2. Filtro por estado: todos | abiertos | cerrados
- *  3. Promedio de rating con estrellas en cada card
- *  4. Paginación con links de Inertia (withQueryString preserva búsqueda)
- *  5. Toggle is_open visible solo al admin (llama a PATCH /admin/games/{id}/toggle-open)
+ *  3. Promedio de rating con estrella en cada card
+ *  4. Paginación (preserva filtros en la URL)
+ *  5. Toggle is_open (admin) — corregido, ya no usa authorize redundante
+ *  6. Eliminar juego (admin) con modal de confirmación propio
  */
 export default function GamesIndex({ games, filters }) {
     const { auth } = usePage().props;
@@ -27,18 +29,24 @@ export default function GamesIndex({ games, filters }) {
         ? auth.user.roles.includes('admin')
         : false;
 
-    // Estado local del buscador para que el input sea responsivo
     const [search, setSearch] = useState(filters?.search ?? '');
     const [status, setStatus] = useState(filters?.status ?? '');
 
-    // Dispara la búsqueda al backend con Inertia (preserva paginación reseteada)
-    const applyFilters = useCallback((newSearch, newStatus) => {
-        router.get(
-            '/games',
-            { search: newSearch, status: newStatus },
-            { preserveState: true, preserveScroll: true, replace: true },
-        );
-    }, []);
+    // Modal: guarda { id, title } del juego a eliminar, o null si está cerrado
+    const [confirmGame, setConfirmGame] = useState(null);
+
+    const debounceTimer = useRef(null);
+
+    const applyFilters = (newSearch, newStatus) => {
+        clearTimeout(debounceTimer.current);
+        debounceTimer.current = setTimeout(() => {
+            router.get(
+                '/games',
+                { search: newSearch, status: newStatus },
+                { preserveState: true, preserveScroll: true, replace: true },
+            );
+        }, 350);
+    };
 
     const handleSearch = (e) => {
         const val = e.target.value;
@@ -48,7 +56,12 @@ export default function GamesIndex({ games, filters }) {
 
     const handleStatus = (val) => {
         setStatus(val);
-        applyFilters(search, val);
+        clearTimeout(debounceTimer.current);
+        router.get(
+            '/games',
+            { search, status: val },
+            { preserveState: true, preserveScroll: true, replace: true },
+        );
     };
 
     const clearSearch = () => {
@@ -64,9 +77,28 @@ export default function GamesIndex({ games, filters }) {
         );
     };
 
+    const handleDeleteConfirmed = () => {
+        if (!confirmGame) return;
+        router.delete(`/admin/games/${confirmGame.id}`, {
+            onFinish: () => setConfirmGame(null),
+        });
+    };
+
     return (
         <AppLayout>
             <Head title="Juegos" />
+
+            {/* Modal confirmación eliminar juego */}
+            {confirmGame && (
+                <ConfirmModal
+                    title="Eliminar juego"
+                    message={`¿Estás seguro de que quieres eliminar "${confirmGame.title}"? Esta acción no se puede deshacer y eliminará todas sus reseñas.`}
+                    confirmLabel="Eliminar"
+                    onConfirm={handleDeleteConfirmed}
+                    onCancel={() => setConfirmGame(null)}
+                    danger
+                />
+            )}
 
             <div className="min-h-screen px-6 py-10 text-white">
                 <div className="mx-auto max-w-7xl">
@@ -82,7 +114,6 @@ export default function GamesIndex({ games, filters }) {
 
                     {/* FILTROS */}
                     <div className="mb-8 flex flex-wrap gap-3">
-                        {/* Buscador */}
                         <div className="relative min-w-[200px] flex-1">
                             <Search
                                 size={16}
@@ -105,7 +136,6 @@ export default function GamesIndex({ games, filters }) {
                             )}
                         </div>
 
-                        {/* Filtro estado */}
                         <div className="flex gap-2">
                             {[
                                 { val: '', label: 'Todos' },
@@ -142,6 +172,7 @@ export default function GamesIndex({ games, filters }) {
                                     game={g}
                                     isAdmin={isAdmin}
                                     onToggleOpen={handleToggleOpen}
+                                    onDelete={(game) => setConfirmGame(game)}
                                 />
                             ))}
                         </div>
@@ -157,7 +188,7 @@ export default function GamesIndex({ games, filters }) {
 
 /* ── GameCard ────────────────────────────────────────── */
 
-function GameCard({ game, isAdmin, onToggleOpen }) {
+function GameCard({ game, isAdmin, onToggleOpen, onDelete }) {
     const avg = game.reviews_avg_rating
         ? parseFloat(game.reviews_avg_rating).toFixed(1)
         : null;
@@ -173,7 +204,7 @@ function GameCard({ game, isAdmin, onToggleOpen }) {
                     className="h-56 w-full object-cover transition duration-500 group-hover:scale-105"
                 />
             ) : (
-                <div className="flex h-56 items-center justify-center bg-white/5 text-slate-500">
+                <div className="flex h-56 items-center justify-center bg-white/5 text-sm text-slate-500">
                     Sin portada
                 </div>
             )}
@@ -185,11 +216,9 @@ function GameCard({ game, isAdmin, onToggleOpen }) {
                         {game.title}
                     </h2>
 
-                    {/* Rating badge */}
                     {avg ? (
                         <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-yellow-500/30 bg-yellow-500/15 px-2.5 py-1 text-xs font-bold text-yellow-300">
-                            <Star size={11} />
-                            {avg}
+                            <Star size={11} /> {avg}
                             <span className="font-normal opacity-60">/ 10</span>
                         </span>
                     ) : (
@@ -212,7 +241,6 @@ function GameCard({ game, isAdmin, onToggleOpen }) {
                 {/* FOOTER */}
                 <div className="mt-5 flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2">
-                        {/* Badge estado */}
                         <span
                             className={`rounded-full px-2.5 py-1 text-xs font-medium ${
                                 game.is_open
@@ -223,23 +251,39 @@ function GameCard({ game, isAdmin, onToggleOpen }) {
                             {game.is_open ? 'Abierto' : 'Cerrado'}
                         </span>
 
-                        {/* Toggle is_open — solo admin */}
                         {isAdmin && (
-                            <button
-                                onClick={() => onToggleOpen(game.id)}
-                                title={
-                                    game.is_open
-                                        ? 'Cerrar reseñas'
-                                        : 'Abrir reseñas'
-                                }
-                                className="rounded-lg border border-white/10 bg-white/5 p-1.5 text-slate-400 transition hover:bg-white/10 hover:text-white"
-                            >
-                                {game.is_open ? (
-                                    <Lock size={13} />
-                                ) : (
-                                    <Unlock size={13} />
-                                )}
-                            </button>
+                            <>
+                                {/* Toggle is_open */}
+                                <button
+                                    onClick={() => onToggleOpen(game.id)}
+                                    title={
+                                        game.is_open
+                                            ? 'Cerrar reseñas'
+                                            : 'Abrir reseñas'
+                                    }
+                                    className="rounded-lg border border-white/10 bg-white/5 p-1.5 text-slate-400 transition hover:bg-white/10 hover:text-white"
+                                >
+                                    {game.is_open ? (
+                                        <Lock size={13} />
+                                    ) : (
+                                        <Unlock size={13} />
+                                    )}
+                                </button>
+
+                                {/* Eliminar juego */}
+                                <button
+                                    onClick={() =>
+                                        onDelete({
+                                            id: game.id,
+                                            title: game.title,
+                                        })
+                                    }
+                                    title="Eliminar juego"
+                                    className="rounded-lg border border-red-500/20 bg-red-500/10 p-1.5 text-red-400 transition hover:bg-red-500/20"
+                                >
+                                    <Trash2 size={13} />
+                                </button>
+                            </>
                         )}
                     </div>
 
@@ -272,7 +316,6 @@ function Pagination({ meta }) {
                 </span>{' '}
                 de <span className="text-white">{meta.total}</span> juegos
             </p>
-
             <div className="flex items-center gap-2">
                 <button
                     onClick={() => goTo(meta.prev_page_url)}
@@ -281,11 +324,9 @@ function Pagination({ meta }) {
                 >
                     <ChevronLeft size={15} /> Anterior
                 </button>
-
                 <span className="text-sm text-slate-400">
                     {meta.current_page} / {meta.last_page}
                 </span>
-
                 <button
                     onClick={() => goTo(meta.next_page_url)}
                     disabled={!meta.next_page_url}
@@ -293,6 +334,58 @@ function Pagination({ meta }) {
                 >
                     Siguiente <ChevronRight size={15} />
                 </button>
+            </div>
+        </div>
+    );
+}
+
+/* ── ConfirmModal ────────────────────────────────────── */
+
+/**
+ * Modal de confirmación reutilizable.
+ * Reemplaza al confirm() nativo del browser.
+ */
+function ConfirmModal({
+    title,
+    message,
+    confirmLabel = 'Confirmar',
+    onConfirm,
+    onCancel,
+    danger = false,
+}) {
+    return (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            {/* Backdrop */}
+            <div
+                className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+                onClick={onCancel}
+            />
+
+            {/* Panel */}
+            <div className="relative w-full max-w-md rounded-2xl border border-white/10 bg-[#0f1117] p-6 shadow-2xl">
+                <h3 className="text-lg font-bold text-white">{title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-300">
+                    {message}
+                </p>
+
+                <div className="mt-6 flex justify-end gap-3">
+                    <button
+                        onClick={onCancel}
+                        className="rounded-xl border border-white/10 bg-white/5 px-4 py-2 text-sm font-medium text-slate-200 transition hover:bg-white/10"
+                    >
+                        Cancelar
+                    </button>
+                    <button
+                        onClick={onConfirm}
+                        className={`rounded-xl px-4 py-2 text-sm font-semibold text-white transition ${
+                            danger
+                                ? 'bg-red-600 hover:bg-red-500'
+                                : 'bg-indigo-600 hover:bg-indigo-500'
+                        }`}
+                    >
+                        {confirmLabel}
+                    </button>
+                </div>
             </div>
         </div>
     );
