@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Data\GameData;
 use App\Http\Requests\StoreGameRequest;
+use App\Http\Requests\UpdateGameRequest;
 
 class GameController extends Controller
 {
@@ -63,7 +64,7 @@ class GameController extends Controller
     {
         $this->authorize('delete', $game);
         $game->delete();
-        return redirect()->route('games.index')->with('success', 'Juego eliminado.');
+        return back()->with('success', 'Juego eliminado.');
     }
 
     public function create()
@@ -107,6 +108,41 @@ class GameController extends Controller
         return redirect()
             ->route('dashboard')
             ->with('success', 'Juego creado correctamente.');
+    }
+
+    public function edit(Game $game)
+    {
+        $this->authorize('update', $game);
+
+        return Inertia::render('Admin/Games/Edit', [
+            'game' => $game,
+        ]);
+    }
+
+    public function update(UpdateGameRequest $request, Game $game)
+    {
+        $this->authorize('update', $game);
+
+        $validated = $request->validated();
+
+        // Si se sube una nueva portada, guardarla y eliminar la anterior
+        if ($request->hasFile('cover')) {
+            if ($game->cover_path) {
+                \Illuminate\Support\Facades\Storage::disk('public')->delete($game->cover_path);
+            }
+            $validated['cover_path'] = $request->file('cover')->store('covers', 'public');
+        }
+
+        $game->update([
+            'title' => $validated['title'],
+            'description' => $validated['description'] ?? null,
+            'is_open' => (bool) ($validated['is_open'] ?? false),
+            'cover_path' => $validated['cover_path'] ?? $game->cover_path,
+        ]);
+
+        return redirect()
+            ->route('games.show', $game)
+            ->with('success', 'Juego actualizado correctamente.');
     }
 
     public function show(Game $game)

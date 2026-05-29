@@ -7,7 +7,6 @@ use Inertia\Inertia;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\GameController;
 use App\Http\Controllers\PetitionController;
-use App\Http\Controllers\Admin\PetitionAdminController;
 use App\Http\Controllers\ReviewController;
 
 // -------------------------------------------------------
@@ -60,6 +59,8 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::get('/games', [GameController::class, 'index'])->name('games.index');
     Route::get('/games/create', [GameController::class, 'create'])->name('games.create');
     Route::post('/games', [GameController::class, 'store'])->name('games.store');
+    Route::get('/games/{game}/edit', [GameController::class, 'edit'])->name('games.edit');
+    Route::post('/games/{game}', [GameController::class, 'update'])->name('games.update');
     Route::patch('/games/{game}/toggle-open', [GameController::class, 'toggleOpen'])->name('games.toggleOpen');
     Route::delete('/games/{game}', [GameController::class, 'destroy'])->name('games.destroy');
 

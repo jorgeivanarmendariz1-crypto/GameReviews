@@ -9,6 +9,7 @@ import {
     Lock,
     Unlock,
     Trash2,
+    Pencil,
 } from 'lucide-react';
 import AppLayout from '@/layouts/AppLayout';
 
@@ -80,7 +81,12 @@ export default function GamesIndex({ games, filters }) {
     const handleDeleteConfirmed = () => {
         if (!confirmGame) return;
         router.delete(`/admin/games/${confirmGame.id}`, {
-            onFinish: () => setConfirmGame(null),
+            preserveScroll: true,
+            onSuccess: () => {
+                setConfirmGame(null);
+                router.reload({ only: ['games'] });
+            },
+            onError: () => setConfirmGame(null),
         });
     };
 
@@ -253,6 +259,15 @@ function GameCard({ game, isAdmin, onToggleOpen, onDelete }) {
 
                         {isAdmin && (
                             <>
+                                {/* Editar juego */}
+                                <Link
+                                    href={`/admin/games/${game.id}/edit`}
+                                    title="Editar juego"
+                                    className="rounded-lg border border-indigo-500/20 bg-indigo-500/10 p-1.5 text-indigo-400 transition hover:bg-indigo-500/20"
+                                >
+                                    <Pencil size={13} />
+                                </Link>
+
                                 {/* Toggle is_open */}
                                 <button
                                     onClick={() => onToggleOpen(game.id)}

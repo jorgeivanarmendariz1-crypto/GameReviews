@@ -23,12 +23,12 @@ export default function AuthLayout({
 
     return (
         <AuthLayoutTemplate title={title} description={description} {...props}>
-            <div className="absolute top-5 right-5">
+            <div className="absolute right-5 top-5">
                 <button
                     onClick={() => setDarkMode(!darkMode)}
                     className="rounded-lg bg-indigo-600 px-3 py-1 text-sm text-white transition hover:bg-indigo-500"
                 >
-                    {darkMode ? '☀️ Claro' : '🌙 Oscuro'}
+                    {darkMode ? 'Claro' : 'Oscuro'}
                 </button>
             </div>
             {children}
