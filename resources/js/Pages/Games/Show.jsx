@@ -13,6 +13,12 @@ export default function Show({ game, reviews: initialReviews }) {
     // llegan por WebSocket sin recargar la página
     const [reviews, setReviews] = useState(initialReviews ?? []);
 
+    // Sincronizar estado local cuando Inertia recarga los props
+    // (ocurre después de publicar una reseña propia)
+    useEffect(() => {
+        setReviews(initialReviews ?? []);
+    }, [initialReviews]);
+
     /**
      * Suscripción al canal público "game.{id}" via Laravel Echo + Reverb.
      * Cuando otro usuario publica una reseña, el evento "review.posted"
@@ -31,6 +37,10 @@ export default function Show({ game, reviews: initialReviews }) {
                 if (prev.some((r) => r.id === payload.id)) return prev;
                 return [payload, ...prev];
             });
+        });
+
+        channel.listen('.review.deleted', (payload) => {
+            setReviews((prev) => prev.filter((r) => r.id !== payload.id));
         });
 
         return () => {
@@ -54,7 +64,12 @@ export default function Show({ game, reviews: initialReviews }) {
                 },
             });
         } else {
-            post('/reviews', { onSuccess: () => reset() });
+            post('/reviews', {
+                onSuccess: () => {
+                    reset();
+                    router.reload({ only: ['reviews'] });
+                },
+            });
         }
     };
 
@@ -192,7 +207,9 @@ export default function Show({ game, reviews: initialReviews }) {
                             >
                                 <div className="flex items-center justify-between">
                                     <span className="text-sm text-slate-300">
-                                        {review.user?.email}
+                                        {review.author ??
+                                            review.user?.name ??
+                                            review.user?.email}
                                     </span>
                                     <span className="inline-flex items-center gap-1 text-yellow-400">
                                         <Star size={14} /> {review.rating}

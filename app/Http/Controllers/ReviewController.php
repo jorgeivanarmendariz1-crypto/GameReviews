@@ -9,6 +9,7 @@ use App\Http\Requests\UpdateReviewRequest;
 use App\Models\Review;
 use App\Services\ReviewModerationService;
 use App\Events\ReviewPosted;
+use App\Events\ReviewDeleted;
 use Illuminate\Http\RedirectResponse;
 
 class ReviewController extends Controller
@@ -36,13 +37,13 @@ class ReviewController extends Controller
 
             // Emitir evento de WebSocket para que otros visitantes
             // vean la reseña nueva sin recargar la página
-            broadcast(new ReviewPosted($review))->toOthers();
+            broadcast(new ReviewPosted($review));
 
         } catch (\Illuminate\Database\QueryException $e) {
             return back()->withErrors(['general' => 'No se pudo guardar la reseña. Intenta de nuevo.'])->withInput();
         }
 
-        return redirect()->route('dashboard')->with('success', 'Reseña publicada con éxito.');
+        return back()->with('success', 'Reseña publicada con éxito.');
     }
 
     public function update(UpdateReviewRequest $request, Review $review, ReviewModerationService $moderation): RedirectResponse
@@ -79,8 +80,9 @@ class ReviewController extends Controller
     {
         $this->authorize('delete', $review);
 
+        broadcast(new ReviewDeleted($review));
         $review->delete();
 
-        return redirect()->route('dashboard')->with('success', 'Reseña eliminada.');
+        return back()->with('success', 'Reseña eliminada.');
     }
 }

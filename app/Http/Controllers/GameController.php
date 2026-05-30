@@ -150,7 +150,7 @@ class GameController extends Controller
         $game->load(['reviews.user']);
         return Inertia::render('Games/Show', [
             'game' => $game,
-            'reviews' => $game->reviews()->with('user')->latest()->get(),
+            'reviews' => $game->reviews()->with('user:id,name,email')->latest()->get(),
         ]);
     }
 }
