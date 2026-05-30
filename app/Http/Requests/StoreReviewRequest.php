@@ -16,7 +16,7 @@ class StoreReviewRequest extends FormRequest
     {
         return [
             'game_id' => ['required', 'integer', 'exists:games,id'],
-            'rating' => ['required', 'integer', 'min:1', 'max:5'],
+            'rating' => ['required', 'integer', 'min:1', 'max:10'],
             'content' => ['required', 'string', 'min:10', 'max:2000'],
         ];
     }

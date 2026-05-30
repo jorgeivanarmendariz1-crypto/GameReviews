@@ -8,6 +8,7 @@ use App\Http\Requests\StoreReviewRequest;
 use App\Http\Requests\UpdateReviewRequest;
 use App\Models\Review;
 use App\Services\ReviewModerationService;
+use App\Events\ReviewPosted;
 use Illuminate\Http\RedirectResponse;
 
 class ReviewController extends Controller
@@ -26,12 +27,17 @@ class ReviewController extends Controller
         }
 
         try {
-            Review::create([
+            $review = Review::create([
                 'user_id' => $request->user()->id,
                 'game_id' => $data->game_id,
                 'rating' => $data->rating,
                 'content' => $data->content,
             ]);
+
+            // Emitir evento de WebSocket para que otros visitantes
+            // vean la reseña nueva sin recargar la página
+            broadcast(new ReviewPosted($review))->toOthers();
+
         } catch (\Illuminate\Database\QueryException $e) {
             return back()->withErrors(['general' => 'No se pudo guardar la reseña. Intenta de nuevo.'])->withInput();
         }

@@ -1,15 +1,42 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { router } from '@inertiajs/react';
 import { Star, Pencil, Trash2 } from 'lucide-react';
 import AppLayout from '@/layouts/AppLayout';
 
-export default function Show({ game, reviews }) {
+export default function Show({ game, reviews: initialReviews }) {
     const { auth, errors } = usePage().props;
     const [editingId, setEditingId] = useState(null);
-
-    // Modal: guarda el id de la reseña a eliminar, o null si está cerrado
     const [confirmReviewId, setConfirmReviewId] = useState(null);
+
+    // Lista de reseñas en estado local para poder agregar las que
+    // llegan por WebSocket sin recargar la página
+    const [reviews, setReviews] = useState(initialReviews ?? []);
+
+    /**
+     * Suscripción al canal público "game.{id}" via Laravel Echo + Reverb.
+     * Cuando otro usuario publica una reseña, el evento "review.posted"
+     * llega aquí y la agregamos al principio de la lista en tiempo real.
+     *
+     * toOthers() en el backend evita que el propio autor la reciba dos veces.
+     */
+    useEffect(() => {
+        if (typeof window.Echo === 'undefined') return;
+
+        const channel = window.Echo.channel(`game.${game.id}`);
+
+        channel.listen('.review.posted', (payload) => {
+            setReviews((prev) => {
+                // Evitar duplicados si el mismo evento llega dos veces
+                if (prev.some((r) => r.id === payload.id)) return prev;
+                return [payload, ...prev];
+            });
+        });
+
+        return () => {
+            window.Echo.leaveChannel(`game.${game.id}`);
+        };
+    }, [game.id]);
 
     const { data, setData, post, processing, reset } = useForm({
         game_id: game.id,
