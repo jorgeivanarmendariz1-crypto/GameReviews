@@ -1,6 +1,7 @@
-
 #!/bin/sh
 set -e
-composer dump-autoload --optimize
+
+php artisan config:clear
+php artisan cache:clear
 php artisan migrate --force
 php artisan storage:link
