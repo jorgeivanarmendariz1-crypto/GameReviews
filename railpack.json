@@ -1,7 +1,5 @@
 {
-  "build": {
-    "php": {
-      "artisanCache": false
-    }
+  "php": {
+    "extensions": ["pcntl"]
   }
 }
