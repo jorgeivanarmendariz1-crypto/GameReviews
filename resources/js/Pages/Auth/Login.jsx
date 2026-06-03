@@ -18,7 +18,7 @@ export default function Login({ status, canResetPassword }) {
         <>
             <Head title="Iniciar sesión" />
 
-            <div className="min-h-screen flex items-center justify-center px-4">
+            <div className="flex min-h-screen items-center justify-center px-4">
                 <div className="w-full max-w-md">
                     {/* Header */}
                     <div className="mb-8 text-center">
@@ -32,8 +32,11 @@ export default function Login({ status, canResetPassword }) {
 
                     {/* Card */}
                     <div
-                        className={`animate-fade-in flex flex-col gap-6 rounded-3xl border border-white/10 bg-white/5 p-10 shadow-[0_0_40px_rgba(99,102,241,0.25)] backdrop-blur-xl ${errors.email || errors.password ? 'animate-shake' : ''
-                            }`}
+                        className={`animate-fade-in flex flex-col gap-6 rounded-3xl border border-white/10 bg-white/5 p-10 shadow-[0_0_40px_rgba(99,102,241,0.25)] backdrop-blur-xl ${
+                            errors.email || errors.password
+                                ? 'animate-shake'
+                                : ''
+                        }`}
                     >
                         {status && (
                             <div className="text-center text-sm font-medium text-green-400">
@@ -71,15 +74,6 @@ export default function Login({ status, canResetPassword }) {
                                     <label className="block text-sm text-slate-200">
                                         Contraseña
                                     </label>
-
-                                    {canResetPassword && (
-                                        <Link
-                                            href="/forgot-password"
-                                            className="text-sm text-indigo-300 hover:text-indigo-200"
-                                        >
-                                            ¿Olvidaste tu contraseña?
-                                        </Link>
-                                    )}
                                 </div>
 
                                 <input
