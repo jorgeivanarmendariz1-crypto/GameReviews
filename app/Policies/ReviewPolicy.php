@@ -19,7 +19,7 @@ class ReviewPolicy
 
     public function create(User $user): bool
     {
-        return $user->hasRole('user');
+        return $user->hasRole('user') || $user->hasRole('admin');
     }
 
     public function update(User $user, Review $review): bool
