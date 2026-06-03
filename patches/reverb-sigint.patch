@@ -1,0 +1,11 @@
+--- a/src/Servers/Reverb/Console/Commands/StartServer.php
++++ b/src/Servers/Reverb/Console/Commands/StartServer.php
+@@ -170,7 +170,7 @@
+     public function getSubscribedSignals(): array
+     {
+         if (! windows_os()) {
+-            return [SIGINT, SIGTERM, SIGTSTP];
++            return [];
+         }
+ 
+         $this->handleSignalWindows();

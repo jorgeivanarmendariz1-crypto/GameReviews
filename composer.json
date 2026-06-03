@@ -22,6 +22,7 @@
         "tightenco/ziggy": "^2.0"
     },
     "require-dev": {
+        "cweagans/composer-patches": "^2.0",
         "fakerphp/faker": "^1.23",
         "laravel/boost": "2.0",
         "laravel/breeze": "*",
@@ -94,15 +95,20 @@
         ]
     },
     "extra": {
-        "laravel": {
-            "dont-discover": []
-        }
+"laravel": {
+        "dont-discover": []
     },
+    "patches": {
+        "laravel/reverb": {
+            "Fix SIGINT for FrankenPHP": "patches/reverb-sigint.patch"
+        }
+    }    },
     "config": {
         "optimize-autoloader": true,
         "preferred-install": "dist",
         "sort-packages": true,
         "allow-plugins": {
+            "cweagans/composer-patches": true,
             "pestphp/pest-plugin": true,
             "php-http/discovery": true
         }
