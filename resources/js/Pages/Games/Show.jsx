@@ -98,7 +98,7 @@ export default function Show({ game, reviews: initialReviews }) {
 
             {game.cover_path && (
                 <img
-                    src={`/storage/${game.cover_path}`}
+                    src={game.cover_path.startsWith('http') ? game.cover_path : `/storage/${game.cover_path}`}
                     alt={game.title}
                     className="h-80 w-full object-cover"
                 />

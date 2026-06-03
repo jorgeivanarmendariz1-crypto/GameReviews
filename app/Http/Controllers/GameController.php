@@ -10,11 +10,12 @@ use Inertia\Inertia;
 use App\Data\GameData;
 use App\Http\Requests\StoreGameRequest;
 use App\Http\Requests\UpdateGameRequest;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 class GameController extends Controller
 {
     use AuthorizesRequests;
-    // Para ADMIN
+
     public function index()
     {
         return Inertia::render('Admin/Games/Index', [
@@ -22,13 +23,11 @@ class GameController extends Controller
         ]);
     }
 
-    // Para USER (y admin también visita esta vista)
     public function publicIndex(Request $request)
     {
         $query = Game::withAvg('reviews', 'rating')
             ->withCount('reviews');
 
-        // Búsqueda por título o descripción
         if ($search = $request->input('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('title', 'ilike', "%{$search}%")
@@ -36,7 +35,6 @@ class GameController extends Controller
             });
         }
 
-        // Filtro por estado: 'open' | 'closed' | '' (todos)
         $status = $request->input('status', '');
         if ($status === 'open') {
             $query->where('is_open', true);
@@ -52,17 +50,21 @@ class GameController extends Controller
         ]);
     }
 
-    // Toggle is_open (solo admin — el middleware de la ruta ya garantiza el rol)
     public function toggleOpen(Game $game)
     {
         $game->update(['is_open' => !$game->is_open]);
         return back()->with('success', 'Estado del juego actualizado.');
     }
 
-    // Eliminar juego (solo admin)
     public function destroy(Game $game)
     {
         $this->authorize('delete', $game);
+
+        if ($game->cover_path) {
+            $publicId = pathinfo($game->cover_path, PATHINFO_FILENAME);
+            Cloudinary::destroy("game-covers/{$publicId}");
+        }
+
         $game->delete();
         return back()->with('success', 'Juego eliminado.');
     }
@@ -82,13 +84,15 @@ class GameController extends Controller
         $this->authorize('create', Game::class);
         $validated = $request->validated();
 
-        // Subir portada si existe
         $coverPath = null;
         if ($request->hasFile('cover')) {
-            $coverPath = $request->file('cover')->store('covers', 'public');
+            $result = Cloudinary::upload(
+                $request->file('cover')->getRealPath(),
+                ['folder' => 'game-covers']
+            );
+            $coverPath = $result->getSecurePath();
         }
 
-        // DTO
         $dto = GameData::from([
             'title' => $validated['title'],
             'description' => $validated['description'] ?? null,
@@ -125,12 +129,17 @@ class GameController extends Controller
 
         $validated = $request->validated();
 
-        // Si se sube una nueva portada, guardarla y eliminar la anterior
         if ($request->hasFile('cover')) {
             if ($game->cover_path) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete($game->cover_path);
+                $publicId = pathinfo(parse_url($game->cover_path, PHP_URL_PATH), PATHINFO_FILENAME);
+                Cloudinary::destroy("game-covers/{$publicId}");
             }
-            $validated['cover_path'] = $request->file('cover')->store('covers', 'public');
+
+            $result = Cloudinary::upload(
+                $request->file('cover')->getRealPath(),
+                ['folder' => 'game-covers']
+            );
+            $validated['cover_path'] = $result->getSecurePath();
         }
 
         $game->update([

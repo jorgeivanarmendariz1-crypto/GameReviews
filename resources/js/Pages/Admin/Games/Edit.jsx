@@ -14,7 +14,7 @@ import AppLayout from '@/Layouts/AppLayout';
  */
 export default function Edit({ game }) {
     const [previewUrl, setPreviewUrl] = useState(
-        game.cover_path ? `/storage/${game.cover_path}` : null,
+        game.cover_path ? (game.cover_path.startsWith('http') ? game.cover_path : `/storage/${game.cover_path}`) : null,
     );
     const [removeCover, setRemoveCover] = useState(false);
 
