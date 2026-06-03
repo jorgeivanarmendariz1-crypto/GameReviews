@@ -1,14 +1,14 @@
 import { Form, Head } from '@inertiajs/react';
 import { ShieldBan, ShieldCheck } from 'lucide-react';
 import { useState } from 'react';
-import Heading from '@/components/heading';
-import TwoFactorRecoveryCodes from '@/components/two-factor-recovery-codes';
-import TwoFactorSetupModal from '@/components/two-factor-setup-modal';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
+import Heading from '@/Components/heading';
+import TwoFactorRecoveryCodes from '@/Components/two-factor-recovery-codes';
+import TwoFactorSetupModal from '@/Components/two-factor-setup-modal';
+import { Badge } from '@/Components/ui/badge';
+import { Button } from '@/Components/ui/button';
 import { useTwoFactorAuth } from '@/hooks/use-two-factor-auth';
-import AppLayout from '@/layouts/app-layout';
-import SettingsLayout from '@/layouts/settings/layout';
+import AppLayout from '@/Layouts/app-layout';
+import SettingsLayout from '@/Layouts/settings/layout';
 import type { BreadcrumbItem } from '@/types';
 import { disable, enable, show } from '@/routes/two-factor';
 

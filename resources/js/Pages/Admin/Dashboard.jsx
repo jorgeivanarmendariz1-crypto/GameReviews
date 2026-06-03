@@ -8,7 +8,7 @@ import {
     List,
     Library,
 } from 'lucide-react';
-import AppLayout from '@/layouts/AppLayout';
+import AppLayout from '@/Layouts/AppLayout';
 
 export default function Dashboard({
     totalGames = 0,

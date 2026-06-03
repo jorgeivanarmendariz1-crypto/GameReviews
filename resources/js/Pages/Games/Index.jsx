@@ -11,7 +11,7 @@ import {
     Trash2,
     Pencil,
 } from 'lucide-react';
-import AppLayout from '@/layouts/AppLayout';
+import AppLayout from '@/Layouts/AppLayout';
 
 /**
  * Games/Index

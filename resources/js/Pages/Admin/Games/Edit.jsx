@@ -1,7 +1,7 @@
 import { Head, useForm } from '@inertiajs/react';
 import { ChevronDown, ChevronUp, Trash2 } from 'lucide-react';
 import { useState } from 'react';
-import AppLayout from '@/layouts/AppLayout';
+import AppLayout from '@/Layouts/AppLayout';
 
 /**
  * Admin/Games/Edit

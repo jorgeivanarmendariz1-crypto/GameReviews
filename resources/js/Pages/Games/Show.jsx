@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Head, Link, useForm, usePage } from '@inertiajs/react';
 import { router } from '@inertiajs/react';
 import { Star, Pencil, Trash2 } from 'lucide-react';
-import AppLayout from '@/layouts/AppLayout';
+import AppLayout from '@/Layouts/AppLayout';
 
 export default function Show({ game, reviews: initialReviews }) {
     const { auth, errors } = usePage().props;
