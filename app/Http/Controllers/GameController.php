@@ -3,18 +3,31 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-
 use App\Models\Game;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Data\GameData;
 use App\Http\Requests\StoreGameRequest;
 use App\Http\Requests\UpdateGameRequest;
-use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
+use Cloudinary\Cloudinary;
+use Cloudinary\Configuration\Configuration;
 
 class GameController extends Controller
 {
     use AuthorizesRequests;
+
+    private function cloudinary(): Cloudinary
+    {
+        Configuration::instance([
+            'cloud' => [
+                'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),
+                'api_key'    => env('CLOUDINARY_API_KEY'),
+                'api_secret' => env('CLOUDINARY_API_SECRET'),
+            ],
+            'url' => ['secure' => true],
+        ]);
+        return new Cloudinary();
+    }
 
     public function index()
     {
@@ -61,8 +74,8 @@ class GameController extends Controller
         $this->authorize('delete', $game);
 
         if ($game->cover_path) {
-            $publicId = pathinfo($game->cover_path, PATHINFO_FILENAME);
-            Cloudinary::destroy("game-covers/{$publicId}");
+            $publicId = 'game-covers/' . pathinfo(parse_url($game->cover_path, PHP_URL_PATH), PATHINFO_FILENAME);
+            $this->cloudinary()->uploadApi()->destroy($publicId);
         }
 
         $game->delete();
@@ -86,11 +99,11 @@ class GameController extends Controller
 
         $coverPath = null;
         if ($request->hasFile('cover')) {
-            $result = Cloudinary::upload(
+            $result = $this->cloudinary()->uploadApi()->upload(
                 $request->file('cover')->getRealPath(),
                 ['folder' => 'game-covers']
             );
-            $coverPath = $result->getSecurePath();
+            $coverPath = $result['secure_url'];
         }
 
         $dto = GameData::from([
@@ -131,15 +144,15 @@ class GameController extends Controller
 
         if ($request->hasFile('cover')) {
             if ($game->cover_path) {
-                $publicId = pathinfo(parse_url($game->cover_path, PHP_URL_PATH), PATHINFO_FILENAME);
-                Cloudinary::destroy("game-covers/{$publicId}");
+                $publicId = 'game-covers/' . pathinfo(parse_url($game->cover_path, PHP_URL_PATH), PATHINFO_FILENAME);
+                $this->cloudinary()->uploadApi()->destroy($publicId);
             }
 
-            $result = Cloudinary::upload(
+            $result = $this->cloudinary()->uploadApi()->upload(
                 $request->file('cover')->getRealPath(),
                 ['folder' => 'game-covers']
             );
-            $validated['cover_path'] = $result->getSecurePath();
+            $validated['cover_path'] = $result['secure_url'];
         }
 
         $game->update([
