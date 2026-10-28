@@ -10,24 +10,24 @@ use App\Data\GameData;
 use App\Http\Requests\StoreGameRequest;
 use App\Http\Requests\UpdateGameRequest;
 use Cloudinary\Cloudinary;
-use Cloudinary\Configuration\Configuration;
 
 class GameController extends Controller
 {
     use AuthorizesRequests;
 
-    private function cloudinary(): Cloudinary
-    {
-        Configuration::instance([
-            'cloud' => [
-                'cloud_name' => env('CLOUDINARY_CLOUD_NAME'),
-                'api_key'    => env('CLOUDINARY_API_KEY'),
-                'api_secret' => env('CLOUDINARY_API_SECRET'),
-            ],
-            'url' => ['secure' => true],
-        ]);
-        return new Cloudinary();
-    }
+private function cloudinary(): Cloudinary
+{
+    // Se pasa la configuración directo al constructor para que el cliente
+    // no dependa de la variable de entorno CLOUDINARY_URL del sistema.
+    return new Cloudinary([
+        'cloud' => [
+            'cloud_name' => config('services.cloudinary.cloud_name'),
+            'api_key'    => config('services.cloudinary.api_key'),
+            'api_secret' => config('services.cloudinary.api_secret'),
+        ],
+        'url' => ['secure' => true],
+    ]);
+}
 
     public function index()
     {
