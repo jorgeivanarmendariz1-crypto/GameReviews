@@ -66,16 +66,24 @@ Configura en `.env` la conexión a PostgreSQL (`DB_*`), las credenciales de Clou
 php artisan migrate --seed
 ```
 
-Levanta los servicios, cada uno en su propia terminal:
+Levanta todos los servicios (servidor, cola, Reverb y Vite) con un solo comando:
 
 ```bash
-php artisan serve          # aplicación
-npm run dev                # Vite (frontend)
-php artisan reverb:start   # servidor de WebSockets
-php artisan queue:work     # cola para los eventos de broadcast
+composer run dev
 ```
 
-El seeder crea un usuario administrador para pruebas locales: `admin@gamereviews.com` / `Admin12345*`.
+> **Windows con Laravel Herd:** si `php artisan serve` falla con `Unable to start curl module`, sirve la app con Herd (`herd link gamereviews`, disponible en `http://gamereviews.test`) y levanta solo los demás servicios:
+>
+> ```bash
+> npx concurrently "php artisan queue:listen --tries=1" "php artisan reverb:start" "npm run dev" --names=queue,reverb,vite
+> ```
+
+El seeder crea dos usuarios para pruebas locales:
+
+| Rol | Correo | Contraseña |
+|---|---|---|
+| Administrador | `admin@gamereviews.com` | `Admin12345*` |
+| Usuario | `test@example.com` | `password` |
 
 ## Autor
 
