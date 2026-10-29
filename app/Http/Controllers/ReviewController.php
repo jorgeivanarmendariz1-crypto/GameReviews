@@ -36,8 +36,10 @@ class ReviewController extends Controller
             ]);
 
             // Emitir evento de WebSocket para que otros visitantes
-            // vean la reseña nueva sin recargar la página
-            broadcast(new ReviewPosted($review));
+            // vean la reseña nueva sin recargar la página.
+            // toOthers() excluye la conexión del autor (cabecera X-Socket-ID
+            // que Echo agrega a axios); el autor la recibe con back().
+            broadcast(new ReviewPosted($review))->toOthers();
 
         } catch (\Illuminate\Database\QueryException $e) {
             return back()->withErrors(['general' => 'No se pudo guardar la reseña. Intenta de nuevo.'])->withInput();
@@ -73,7 +75,7 @@ class ReviewController extends Controller
             'edit_count' => $review->edit_count + 1,
         ]);
 
-        return redirect()->route('dashboard')->with('success', 'Reseña actualizada.');
+        return back()->with('success', 'Reseña actualizada.');
     }
 
     public function destroy(Review $review): RedirectResponse

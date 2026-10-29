@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\Role;
 
 class DatabaseSeeder extends Seeder
 {
@@ -19,8 +20,12 @@ public function run(): void
         AdminUserSeeder::class,
     ]);
 
-    User::factory()->create([
+    $testUser = User::factory()->create([
         'name' => 'Test User',
         'email' => 'test@example.com',
     ]);
+
+    // Igual que en el registro normal: todo usuario necesita el rol "user"
+    // para que la ReviewPolicy le permita publicar reseñas.
+    $testUser->roles()->attach(Role::where('name', 'user')->first());
 }}

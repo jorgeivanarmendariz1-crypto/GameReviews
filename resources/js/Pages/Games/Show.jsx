@@ -24,7 +24,9 @@ export default function Show({ game, reviews: initialReviews }) {
      * Cuando otro usuario publica una reseña, el evento "review.posted"
      * llega aquí y la agregamos al principio de la lista en tiempo real.
      *
-     * toOthers() en el backend evita que el propio autor la reciba dos veces.
+     * El backend usa toOthers(), así que el autor no recibe su propio evento
+     * (su reseña llega con la respuesta del POST). La comprobación de
+     * duplicados queda como respaldo por si el evento llega igualmente.
      */
     useEffect(() => {
         if (typeof window.Echo === 'undefined') return;
@@ -64,11 +66,10 @@ export default function Show({ game, reviews: initialReviews }) {
                 },
             });
         } else {
+            // back() en el backend ya devuelve las reseñas actualizadas,
+            // no hace falta un router.reload adicional
             post('/reviews', {
-                onSuccess: () => {
-                    reset();
-                    router.reload({ only: ['reviews'] });
-                },
+                onSuccess: () => reset(),
             });
         }
     };
@@ -114,11 +115,21 @@ export default function Show({ game, reviews: initialReviews }) {
                         </p>
                     </div>
 
+                    {/* ERRORES GENERALES (juego cerrado, fallo al guardar).
+                        Van fuera del formulario porque, si el juego se cerró
+                        mientras el usuario escribía, el formulario ya no se muestra. */}
+                    {(errors.game_id || errors.general) && (
+                        <div className="mt-6 rounded-xl border border-red-500/30 bg-red-500/10 px-4 py-3 text-sm text-red-300">
+                            {errors.game_id ?? errors.general}
+                        </div>
+                    )}
+
                     {/* FORM REVIEW */}
+                    {game.is_open ? (
                     <form
                         onSubmit={submit}
                         className={`mt-6 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl ${
-                            errors.content ? 'animate-shake border-red-500' : ''
+                            errors.content || errors.rating ? 'animate-shake border-red-500' : ''
                         }`}
                     >
                         <h2 className="text-xl font-semibold">
@@ -140,6 +151,11 @@ export default function Show({ game, reviews: initialReviews }) {
                                 }
                                 className="mt-2 w-full rounded-xl bg-white/5 p-2 text-white"
                             />
+                            {errors.rating && (
+                                <p className="mt-2 text-sm text-red-400">
+                                    {errors.rating}
+                                </p>
+                            )}
                         </div>
 
                         {/* CONTENT */}
@@ -187,7 +203,11 @@ export default function Show({ game, reviews: initialReviews }) {
                             )}
                         </div>
                     </form>
-
+                    ) : (
+                        <p className="mt-6 rounded-3xl border border-white/10 bg-white/5 p-6 text-slate-400">
+                            Este juego está cerrado y ya no acepta reseñas nuevas.
+                        </p>
+                    )}
                     {/* REVIEWS LIST */}
                     <div className="mt-6 space-y-4">
                         <h2 className="text-xl font-semibold">
@@ -223,22 +243,26 @@ export default function Show({ game, reviews: initialReviews }) {
                                 {/* Botones solo si es el dueño de la reseña */}
                                 {review.user_id === auth.user.id && (
                                     <div className="mt-3 flex gap-2">
-                                        <button
-                                            onClick={() => {
-                                                setEditingId(review.id);
-                                                setData(
-                                                    'content',
-                                                    review.content,
-                                                );
-                                                setData(
-                                                    'rating',
-                                                    review.rating,
-                                                );
-                                            }}
-                                            className="inline-flex items-center gap-1 text-sm text-indigo-400 hover:text-indigo-300"
-                                        >
-                                            <Pencil size={13} /> Editar
-                                        </button>
+                                        {/* En un juego cerrado no se puede editar
+                                            (el formulario está oculto y el backend lo rechaza) */}
+                                        {game.is_open && (
+                                            <button
+                                                onClick={() => {
+                                                    setEditingId(review.id);
+                                                    setData(
+                                                        'content',
+                                                        review.content,
+                                                    );
+                                                    setData(
+                                                        'rating',
+                                                        review.rating,
+                                                    );
+                                                }}
+                                                className="inline-flex items-center gap-1 text-sm text-indigo-400 hover:text-indigo-300"
+                                            >
+                                                <Pencil size={13} /> Editar
+                                            </button>
+                                        )}
 
                                         <button
                                             onClick={() =>

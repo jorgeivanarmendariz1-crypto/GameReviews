@@ -169,10 +169,11 @@ private function cloudinary(): Cloudinary
 
     public function show(Game $game)
     {
-        $game->load(['reviews.user']);
+        // Solo los campos que usa la vista: antes se enviaba el juego con
+        // todas sus reseñas y los usuarios completos (incluido el email).
         return Inertia::render('Games/Show', [
-            'game' => $game,
-            'reviews' => $game->reviews()->with('user:id,name,email')->latest()->get(),
+            'game' => $game->only(['id', 'title', 'description', 'cover_path', 'is_open']),
+            'reviews' => $game->reviews()->with('user:id,name')->latest()->get(),
         ]);
     }
 }

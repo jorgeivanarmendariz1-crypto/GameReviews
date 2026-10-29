@@ -22,8 +22,9 @@ class ReviewPosted implements ShouldBroadcast
 
     public function __construct(public Review $review)
     {
-        // Cargamos la relación user para incluirla en el payload
-        $this->review->load('user:id,name,email');
+        // Cargamos la relación user para incluirla en el payload.
+        // Sin email: el canal es público y no debe exponer correos.
+        $this->review->load('user:id,name');
     }
 
     /**
@@ -53,7 +54,7 @@ class ReviewPosted implements ShouldBroadcast
             'content' => $this->review->content,
             'edit_count' => $this->review->edit_count,
             'user_id' => $this->review->user_id,
-            'author' => $this->review->user?->name ?? $this->review->user?->email,
+            'author' => $this->review->user?->name,
             'created_at' => $this->review->created_at->toISOString(),
         ];
     }
